@@ -31,7 +31,7 @@ public interface ParserInterface {
 	public abstract List<Node> nodesToList(Node node, Node parent,
 			List<Node> nodeList);
 
-	public abstract List<Node> getNodeList();
+	public abstract List<Node> getNodeList() throws IOException;
 
 	public abstract List<Activity> getActivityList();
 
