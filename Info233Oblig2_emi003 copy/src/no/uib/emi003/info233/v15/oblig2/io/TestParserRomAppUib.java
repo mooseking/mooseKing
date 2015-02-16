@@ -30,10 +30,10 @@ public class TestParserRomAppUib {
 	public void test() {
 		fail("Not yet implemented");
 	}
-	@Test
+	/*@Test
 	public void testSiteFail();
 	{
 		
 	}
-
+*/
 }

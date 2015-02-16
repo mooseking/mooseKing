@@ -25,24 +25,18 @@ public class StringRefiner {
 	 * @return Returns processed URL as a string.
 	 * @throws IOException If something is not behaving as they should do.
 	 */
-	public String urlToString(String htmlIn) throws IOException{
+	public String urlToString(String htmlIn) throws IOException
+	{
 		URL target = new URL(htmlIn);
-		BufferedReader urlDokument = new BufferedReader(new InputStreamReader(target.openStream()));
-		
+		BufferedReader urlDokument = new BufferedReader(new InputStreamReader(target.openStream()));		
 		urlDokument.readLine(); // Remove problematic top html line
-		StringBuilder htmlPrepared = new StringBuilder();
-		
+		StringBuilder htmlPrepared = new StringBuilder();		
 		String line;
-//		try {
-			while((line = urlDokument.readLine()) != null) {
-				htmlPrepared.append(line);
-				}
-
-//		System.out.println(htmlPrepared);
-//		System.out.println(htmlPrepared.length());
+		while((line = urlDokument.readLine()) != null) 
+		{
+			htmlPrepared.append(line);
+		}
 		urlDokument.close();
-		return htmlPrepared.toString();
-		
+		return htmlPrepared.toString();		
 	}
-
 }
