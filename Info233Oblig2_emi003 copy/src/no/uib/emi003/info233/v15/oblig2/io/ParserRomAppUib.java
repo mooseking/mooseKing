@@ -2,23 +2,19 @@ package no.uib.emi003.info233.v15.oblig2.io;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
 
 import no.uib.emi003.info233.v15.oblig2.models.Activity;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
+import no.uib.emi003.info233.v15.oblig2.io.UrlDBGenerator;
 /**
  * This class will handle the parsing methods. 
  * Constr. generates a new object of the class StringRefiner, 
@@ -36,141 +32,156 @@ public class ParserRomAppUib implements ParserInterface
 private StringRefiner stringRefiner;
 private ArrayList<Document> documentList;
 private ArrayList<String> baseURIDB;
-private List<Node> nodeList2;
-private List<List<Node>> nodeList;
+private List<Node> nodeList;
 private UrlDBGenerator urlGen;
-
-	public ParserRomAppUib() 
+private Document doc;
+private int numberOfTimesRecursiveMethodIsCalled;
+private int numberOfTimesMethodFindsClass;
+	public ParserRomAppUib() throws IOException 
 	{
+		numberOfTimesMethodFindsClass=0;
+		numberOfTimesRecursiveMethodIsCalled=0;
 		stringRefiner = new StringRefiner();
 		urlGen = new UrlDBGenerator();
+		baseURIDB = urlGen.generateLinkDB("http://rom.app.uib.no/ukesoversikt/?entry=byggrom");
+		
 	}
 	
 	/**
 	 * Initializes the document for processing.
-	 * @throws IOException 
-	 */
-/*	public void docToDoList() throws IOException
-	{
-		documentList = new ArrayList<Document>();
-		ArrayList<String> array11 = generateLinkDB("http://rom.app.uib.no/ukesoversikt/?entry=byggrom");
-		for(String E : array11)
-		{
-			Document doc = Jsoup.parse(stringRefiner.urlToString(E)); 
-			documentList.add(doc);
-			
-		}
-		System.out.println(documentList.size());
-		System.out.println(documentList.get(0));
-	}*/
-	
-	/**
-	 * Generates list of url to be parsed.
-	 * @return an ArrayList to docToDoList
-	 * @throws IOException
-	 
-	private ArrayList<String> generateLinkDB(String inboundURL) throws IOException
-	{
-		Document urlTrace = Jsoup.parse(stringRefiner.urlToString(inboundURL));
-		Elements urlListBuildings = urlTrace.getElementsByAttributeValueMatching("value",":" );
-		ArrayList<String> listOfLinksToParser = new ArrayList<String>();		
-		for(Element element : urlListBuildings)
-		{	
-			Document urlTraceN2 = Jsoup.parse(stringRefiner.urlToString(inboundURL+"&building="+element.attr("value")));
-			Elements urlListBuildingsN2 = urlTraceN2.getElementsByAttributeValueMatching("value", ":[A-Za-z0-9]");		// [A-Za-z0-9] Kriteriet her forutsetter at rom har en id til høyre for ":", noe bygninger ikke har. Dette eliminerer uaktuelle linker. Håper ingen rom kjører special chars i navnet sitt. 	
-			for(Element element1 : urlListBuildingsN2)
-			{	
-				listOfLinksToParser.add(inboundURL+"&building="+element.attr("value")+"&room="+element1.attr("value"));
-			}
-		}
-		return listOfLinksToParser;
-	}*/
-	
-	/**
-	 * Initializes the document for processing.
+	 * @param  
 	 * @throws IOException 
 	 */
 	@Override
-	public void docToLists() throws IOException 
-	{	nodeList = new ArrayList<List<Node>>();
-		nodeList2 = new ArrayList<Node>();
-		documentList = new ArrayList<Document>();
-		baseURIDB = urlGen.generateLinkDB("http://rom.app.uib.no/ukesoversikt/?entry=byggrom");
-		for(String E : baseURIDB) // outed to reduce load during dev.
-		{
-			Document doc = Jsoup.parse(stringRefiner.urlToString(E)); 
-			documentList.add(doc);			
-		}
+	public void docToLists(int baseURIDBindex) throws IOException 
+	{	
+		nodeList = new LinkedList<Node>();
 	
-		Document doc = Jsoup.parse(stringRefiner.urlToString("http://rom.app.uib.no/ukesoversikt/?entry=byggrom&building=A55%3A&room=A55%3AG292"));
-		Document doc1 = Jsoup.parse(stringRefiner.urlToString("http://rom.app.uib.no/ukesoversikt/?entry=byggrom&building=A55%3A&room=A55%3AG316"));
-		Document doc2 = Jsoup.parse(stringRefiner.urlToString("http://rom.app.uib.no/ukesoversikt/?entry=byggrom&building=A55%3A&room=A55%3AG366"));
-		documentList.add(doc);
-		documentList.add(doc1);
-		documentList.add(doc2);
-		System.out.println(documentList.size());
-		Node node3 = documentList.get(0).getElementsByTag("td").get(2);//getElementsByAttributeValueMatching("emne", "[A-Z]").get(0);
-		Node node4 = documentList.get(0).getElementsByTag("td").get(3);
-		
-		Node node = doc.getElementsByTag("option").get(3).nextSibling();
-		Node node2 = doc.getElementsByTag("option").get(3);
-
-		
-		ArrayList<Node> nodeList3 = new ArrayList<Node>();
-		ArrayList<String> documentList2 = new ArrayList<String>();
-		
-		for(Document d : documentList){
+		Node curr = null;
+		Document doc = Jsoup.parse(stringRefiner.urlToString(baseURIDB.get(baseURIDBindex)));
+		System.out.println("yay");
+		Node node = doc.childNode(0);
+		System.out.println("echo nodes to lists");
+		nodesToList(node,null,nodeList);
 			
-			Node node22 = d.childNode(0);
-			nodeList3.add(node22);
-			System.out.println(node22.nodeName());
-
-		}
-		nodesToList(node, null, nodeList3);
-		nodeList2.add(node);
-		nodeList2.add(node2);
-		nodeList2.add(node3);
-		nodeList2.add(node4);
 		
-		System.out.println(nodeList3.size());
+	
 
+		System.out.println(nodeList.size());
+		System.out.println(baseURIDB.get(baseURIDBindex));
 	}
+	
 	@Override
 	public List<Node> nodesToList(Node node, Node parent, List<Node> nodeList) 
 	{
-		nodeList.add(node);
-		return null;
-	}
-	@Override
-	public List<Node> getNodeList() throws IOException 
-	{
-		
-		/*
-		nodeList = new ArrayList<Node>();
-//		nodeList = 
-		Elements listUseInParseFragment = documentList.get(0).absUrl(null);
-		System.out.println(Jsoup.parseFragment(stringRefiner.urlToString(baseURIDB.get(0)), , baseURIDB.get(0)));
-		//nodeList.add(Jsoup.parse(stringRefiner.urlToString(baseURIDB.get(1))).childNode(0));
-		/*for(Node e : nodeList)
-		{
-			System.out.println(e);
+		numberOfTimesRecursiveMethodIsCalled++;
+//		if(node.childNodes().size() == 0){
+//			return nodeList;
+//		}
+//		
+//		for(Node n : node.childNodes()){
+//			nodesToList(n, node, nodeList);
+//		}
+		if(node.attr("class").equals("week-time") || node.attr("class").equals("markfree") || node.attr("class").equals("week-data") || node.attr("class").equals("activity") || node.attr("class").matches("uke") || node.attr("class").contains("rom")){
+			nodeList.add(node);
 		}
-		System.out.println(nodeList.size());*/
 		
-		return null;
+		//else if(node.hasAttr("class")){
+		//	numberOfTimesMethodFindsClass++;	
+		//}
+		
+		
+		else if(node.childNodes().size() == 0){
+			return nodeList;
+		}
+		else{/*
+			//nodeList.add(node);
+			int i = node.childNodeSize();
+			int a = 0;
+			for(a = 0; a <= i; a++){
+				nodesToList(node.childNode(i-1), node, nodeList);
+			}*/
+			
+			for(Node n : node.childNodes()){
+				nodesToList(n, node, nodeList);
+		}
+			
+		}
+
+		return nodeList;
 	}
+	
 	@Override
-	public List<Activity> getActivityList() 
-	{
-		// TODO Auto-generated method stub
-		return null;
+	public List<Node> getNodeList(int listURIDBindex) throws IOException 
+	{	
+		return nodeList;
 	}
+	
 	@Override
-	public List<String> getDateStringList() 
+	public List<Activity> getActivityList(int listURIDBindex) throws IOException 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		docToLists(listURIDBindex);
+		System.out.println("numberOfTimesRecursiveMethodIsCalled: "+numberOfTimesRecursiveMethodIsCalled);
+		System.out.println("number of times class is fund: "+ numberOfTimesMethodFindsClass);
+		List<Activity> activityObjectList = new ArrayList<Activity>();
+		ArrayList<Node> listToBeAttachedToActivityObject = new ArrayList<Node>();
+		for(Node n : nodeList){	
+			if(n.attr("class").equals("week-data")){
+				listToBeAttachedToActivityObject.add(nodeList.get(0));
+				listToBeAttachedToActivityObject.add(nodeList.get(1));
+				listToBeAttachedToActivityObject.add(n);
+				listToBeAttachedToActivityObject.add(nodeList.indexOf(n));
+			}
+			
+			//if(n.attr("class").equals("activity")){
+			//	listToBeAttachedToActivityObject.add(n);
+			//}
+		}
+		
+		Activity newActivityObject = new Activity(listToBeAttachedToActivityObject);
+		
+		activityObjectList.add(newActivityObject);
+//		
+		System.out.println("Størrelsen på lista som blir lagt til i objekt: "+listToBeAttachedToActivityObject.size());
+//		System.out.println("RomNr som blir hentet ut med activity metode"  :+activityObjectList.get(0).getDescription());
+		for(Node e : listToBeAttachedToActivityObject){
+		System.out.println(e);
+		System.out.println("----------------");}
+//		System.out.println(nodeList);
+		System.out.println("RomNr som blir hentet ut med activity metode: "+activityObjectList.get(0).getRoom());
+		System.out.println("UkeNr hentet ut med å kalle activity metode: "+activityObjectList.get(0).getBeginTime());
+			
+		
+		
+		return activityObjectList;
 	}
+	
+	@Override
+	public List<String> getDateStringList(int listURIDBindex) throws IOException 
+	{
+		docToLists(listURIDBindex);
+		List<String> dateStringList = new ArrayList<String>();
+//		Document doc = new Document(baseURIDB.get(dbIndex));
+//		Elements e = doc.getElementsByAttribute("activity");
+		
+		
+//		System.out.println(nodeList.get(3).childNode(1).childNode(0).nodeName());
+		System.out.println(dateStringList.size()+"yolo");
+		System.out.println(dateStringList.get(0));
+//		System.out.println(list.get(200).length());
+		return dateStringList;
+	}
+	
+	/**
+	 * getLinkDB() returns a list of available links.
+	 * @param siteToHarvest String representation of url to mine
+	 * @return ArrayList with links.
+	 * @throws IOException just in case
+	 */
+	public ArrayList<String> getLinkDB(String siteToHarvest) throws IOException{
+		return urlGen.generateLinkDB(siteToHarvest);
+	}
+		
 	
 
 }

@@ -15,7 +15,7 @@ public interface ParserInterface {
 	 * @throws MalformedURLException 
 	 * @throws IOException 
 	 */
-	public abstract void docToLists() throws IOException;
+	public abstract void docToLists(int baseURIDBindex) throws IOException;
 
 	/**
 	 * Recursive parser
@@ -31,10 +31,12 @@ public interface ParserInterface {
 	public abstract List<Node> nodesToList(Node node, Node parent,
 			List<Node> nodeList);
 
-	public abstract List<Node> getNodeList() throws IOException;
+	public abstract List<Node> getNodeList(int listURIDBindex) throws IOException;
 
-	public abstract List<Activity> getActivityList();
+	public abstract List<Activity> getActivityList(int listURIDBindex) throws IOException;
 
-	public abstract List<String> getDateStringList();
+	public abstract List<String> getDateStringList(int listURIDBindex) throws IOException;
+
+
 
 }

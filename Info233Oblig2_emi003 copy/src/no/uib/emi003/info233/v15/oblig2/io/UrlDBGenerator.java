@@ -29,7 +29,7 @@ public class UrlDBGenerator {
 	 * @return
 	 * @throws IOException
 	 */
-	private ArrayList<String> generateLinkDB(String inboundURL) throws IOException {
+	public ArrayList<String> generateLinkDB(String inboundURL) throws IOException {
 		Document urlTrace = Jsoup.parse(stringRefiner.urlToString(inboundURL));
 		Elements urlListBuildings = urlTrace.getElementsByAttributeValueMatching("value",":" );
 		ArrayList<String> listOfLinksToParser = new ArrayList<String>();		
